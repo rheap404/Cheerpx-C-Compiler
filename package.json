@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@codemirror/lang-python": "^6.1.6",
+    "@uiw/react-codemirror": "^4.23.5",
     "@uiw/react-split": "^5.9.3",
     "next": "14.2.15",
     "react": "^18",

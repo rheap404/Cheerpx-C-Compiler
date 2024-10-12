@@ -1,9 +1,12 @@
 'use client';
 
-import React from "react";
+import React, { useState } from 'react';
+import CodeMirror from '@uiw/react-codemirror';
+import { python } from '@codemirror/lang-python';
 import Split from '@uiw/react-split';
 
 export default function Workspace({ question }) {
+  const [code, setCode] = useState(`# Write your Python code for ${question.title}`);
   return (
     <div className="flex bg-black">
       <Split
@@ -22,9 +25,14 @@ export default function Workspace({ question }) {
         
         <div style={{ minWidth: 80, flex: 1 }} className="text-white m-4 mx-4">
           <h2 className="text-xl font-bold mb-4">Code Editor</h2>
-          <pre className="bg-gray-800 mt-8 p-2 rounded-md">
-            <code className="text-sm">{`// Your code goes here for ${question.title}`}</code> 
-          </pre>
+          <CodeMirror
+            value={code}
+            height="620px"
+            extensions={[python()]}
+            theme="dark"
+            onChange={(value) => setCode(value)}
+            className="p-1 text-sm mt-8" 
+          />
         </div>
       </Split>
     </div>
