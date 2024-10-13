@@ -40,9 +40,6 @@ export default function Workspace({ question }) {
       
           console.log("CheerpX instance created:", cheerpx);
 
-          // console.log("Console Ref:", consoleRef.current);
-          // cheerpx.setConsole(consoleRef.current);
-
           setCheerpXInstance(cheerpx);
 
         } catch (error) {
@@ -64,27 +61,17 @@ export default function Workspace({ question }) {
       cheerpXInstance.setConsole(consoleRef.current);
       console.log("Console set successfully.");
     }
-  }, [cheerpXInstance, consoleVisible]); // Added consoleVisible as dependency
+  }, [cheerpXInstance, consoleVisible]);
 
   const handleRunCode = async () => {
     if (cheerpXInstance) {
       try {
-        const stdout = {
-          write: (data) => {
-            console.log("Received stdout data:", data); 
-            if (data) {
-              setOutput((prevOutput) => prevOutput + data);
-            }
-          },
-        };
-
         const result = await cheerpXInstance.run("/usr/bin/python3", ["-c", code], {
           env: ["PATH=/usr/bin:/bin"],
           cwd: "/app",
-          stdout,
         });
 
-        console.log("CheerpX run result:", result); // Log the result status
+        console.log("CheerpX run result:", result);
 
       } catch (error) {
         console.error("Failed to run code:", error);
@@ -95,38 +82,7 @@ export default function Workspace({ question }) {
       setOutput("Error: CheerpX instance not initialized.");
     }
   };
-  // const handleRunCode = async () => {
-  //   if (cheerpXInstance) {
-  //     try {
-  //       const stdout = {
-  //         write: (data) => {
-  //           console.log("Received stdout data:", data); 
-  //           if (data) {
-  //             setOutput((prevOutput) => prevOutput + data);
-  //           } else {
-  //             console.log("No data received.");
-  //           }
-  //         },
-  //       };
-  
-  //       const result = await cheerpXInstance.run("/usr/bin/python3", ["-c", code], {
-  //         env: ["PATH=/usr/bin:/bin"],
-  //         cwd: "/app", 
-  //         stdout, 
-  //       });
-        
-  //       setOutput("hello")
-  
-  //     } catch (error) {
-  //       console.error("Failed to run code:", error);
-  //       setOutput("Error: " + error.message); // Show error in the UI
-  //     }
-  //   } else {
-  //     console.error("CheerpX instance is not initialized.");
-  //     setOutput("Error: CheerpX instance not initialized.");
-  //   }
-  // };
-  
+ 
   
 
   return (
@@ -169,37 +125,37 @@ export default function Workspace({ question }) {
             onChange={(value) => setCode(value)}
             className="p-2 text-sm mt-4 border border-gray-800 rounded-lg focus:border-blue-500 transition-all duration-200"
           />
-      
-          <button
-            onClick={handleRunCode}
-            className="mt-4 bg-green-500 p-2 rounded-md"
-          >
-            Run Code
-          </button>
+          <div className="flex mt-4 w-full gap-4 justify-end">
+            <button
+              onClick={handleRunCode}
+              className=" bg-green-700 p-2 rounded-md"
+              >
+              Run Code
+            </button>
 
-          {/* Toggle Console */}
-          <button
-            onClick={() => setConsoleVisible(!consoleVisible)}
-            className="mt-6 text-gray-300 bg-gray-700 p-2 rounded-md"
-          >
-            {consoleVisible ? "Hide Console" : "Show Console"}
-          </button>
+            <button
+              onClick={() => setConsoleVisible(!consoleVisible)}
+              className=" text-gray-300 bg-gray-700 p-2 rounded-md"
+              >
+              {consoleVisible ? "Hide Console" : "Show Console"}
+            </button>
+          </div>
 
              {/* Console Output */}
              {consoleVisible && (
-            <div className="bg-gray-900 p-4 mt-5 rounded-md">
+              <div className="bg-gray-900 p-4 mt-5 rounded-md">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-bold">Test Case:</h3>
                   <textarea
-                    className="w-full h-24 bg-gray-800 p-2 rounded-lg focus:outline-none"
+                    className= "mt-4 w-full h-24 bg-gray-800 p-2 rounded-lg focus:outline-none"
                     value={question.example.input}
                     readOnly
                   />
                 </div>
-                <div id='console' ref={consoleRef}>
+                <div >
                   <h3 className="font-bold">Output:</h3>
-                  <p className="text-white">{output}</p>
+                  <pre ref={consoleRef} className="mt-4 p-2 pb-6 text-white">{output}</pre>
                 </div>
               </div>
             </div>
