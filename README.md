@@ -8,9 +8,9 @@ This project was developed as part of the WebVM Hackathon, leveraging CheerpX fo
 
 This platform allows users to practice coding problems in Python, featuring a split-view workspace with problem instructions on one side and a code editor with a built-in console on the other. The platform runs code client-side using CheerpX, which emulates a virtual machine in the browser. This eliminates the need for server-based execution, improving speed, privacy, and scalability.
 
-![Home Page](https://github.com/rheap404/cheerpx_hack/src/images/home.png)
+![Home Page](https://github.com/rheap404/cheerpx_hack/blob/main/home.png)
 
-![Code Editor](https://github.com/rheap404/cheerpx_hack/src/images/code-editor.png)
+![Code Editor](https://github.com/rheap404/cheerpx_hack/blob/main/code-editor.png)
 
 ### Solution: WebVM Hackathon Project
 The WebVM Hackathon Project addresses these challenges by leveraging CheerpX for WebAssembly-powered client-side execution of Python code directly within the browser. This innovative platform allows users to practice coding problems while receiving immediate feedback—eliminating the need for costly server-side validation.
