@@ -1,15 +1,18 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import Split from '@uiw/react-split';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
-import Split from '@uiw/react-split';
+import { OrbitProgress } from 'react-loading-indicators';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function Workspace({ question }) {
   const consoleRef = useRef(null);
-  const [code, setCode] = useState(`# Write your Python code for ${question.title}`);
-  const [consoleVisible, setConsoleVisible] = useState(false); 
-  const [output, setOutput] = useState(""); 
-  const [cheerpXInstance, setCheerpXInstance] = useState(null); 
+  const [output, setOutput] = useState("");
+  const [code, setCode] = useState(question.starterCode);
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [consoleVisible, setConsoleVisible] = useState(true);
+  const [cheerpXInstance, setCheerpXInstance] = useState(null);
 
   useEffect(() => {
     const loadCheerpX = async () => {
@@ -18,26 +21,26 @@ export default function Workspace({ question }) {
       script.async = true;
       document.body.appendChild(script);
 
-          script.onload = async () => {
-            try {
-              const cloudDevice = await CheerpX.CloudDevice.create(
-                "wss://disks.webvm.io/debian_large_20230522_5044875331.ext2"
-              );
-              const idbDevice = await CheerpX.IDBDevice.create("block");
-              const overlayDevice = await CheerpX.OverlayDevice.create(cloudDevice, idbDevice);
-              const webDevice = await CheerpX.WebDevice.create("");
-              const dataDevice = await CheerpX.DataDevice.create();
+      script.onload = async () => {
+        try {
+          const cloudDevice = await CheerpX.CloudDevice.create(
+            "wss://disks.webvm.io/debian_large_20230522_5044875331.ext2"
+          );
+          const idbDevice = await CheerpX.IDBDevice.create("block");
+          const overlayDevice = await CheerpX.OverlayDevice.create(cloudDevice, idbDevice);
+          const webDevice = await CheerpX.WebDevice.create("");
+          const dataDevice = await CheerpX.DataDevice.create();
 
-      
-              const cheerpx = await CheerpX.Linux.create({
-                mounts: [
-                  { type: "ext2", path: "/", dev: overlayDevice },
-                  { type: "dir", path: "/app", dev: webDevice },
-                  { type: "dir", path: "/data", dev: dataDevice },
-                  { type: "devs", path: "/dev" },
-                ],
-              });
-      
+
+          const cheerpx = await CheerpX.Linux.create({
+            mounts: [
+              { type: "ext2", path: "/", dev: overlayDevice },
+              { type: "dir", path: "/app", dev: webDevice },
+              { type: "dir", path: "/data", dev: dataDevice },
+              { type: "devs", path: "/dev" },
+            ],
+          });
+
           console.log("CheerpX instance created:", cheerpx);
 
           setCheerpXInstance(cheerpx);
@@ -53,8 +56,8 @@ export default function Workspace({ question }) {
     };
 
     loadCheerpX();
-  }, []); 
-  
+  }, []);
+
 
   useEffect(() => {
     if (cheerpXInstance && consoleRef.current) {
@@ -64,7 +67,10 @@ export default function Workspace({ question }) {
   }, [cheerpXInstance, consoleVisible]);
 
   const handleRunCode = async () => {
+    setSuccess(false);
+    setLoading(true);
     if (cheerpXInstance) {
+      consoleRef.current.textContent = "";
       try {
         const result = await cheerpXInstance.run("/usr/bin/python3", ["-c", code], {
           env: ["PATH=/usr/bin:/bin"],
@@ -75,15 +81,21 @@ export default function Workspace({ question }) {
 
       } catch (error) {
         console.error("Failed to run code:", error);
-        setOutput("Error: " + error.message); 
+        setOutput("Error: " + error.message);
       }
+
+
+      console.log(consoleRef.current.textContent.trim(), question.example.output)
+      if (consoleRef.current.textContent.trim() === question.example.output) {
+        setSuccess(true);
+      }
+
     } else {
       console.error("CheerpX instance is not initialized.");
       setOutput("Error: CheerpX instance not initialized.");
     }
+    setLoading(false);
   };
- 
-  
 
   return (
     <div className="max-h-screen">
@@ -125,48 +137,51 @@ export default function Workspace({ question }) {
             onChange={(value) => setCode(value)}
             className="p-2 text-sm mt-4 border border-gray-800 rounded-lg focus:border-blue-500 transition-all duration-200"
           />
-          <div className="flex mt-4 w-full gap-4 justify-end">
-            <button
-              onClick={handleRunCode}
-              className=" bg-green-700 p-2 rounded-md"
-              >
-              Run Code
-            </button>
 
-            <button
-              onClick={() => setConsoleVisible(!consoleVisible)}
-              className=" text-gray-300 bg-gray-700 p-2 rounded-md"
+          <div className='flex mt-4 justify-between items-center'>
+            {
+              loading &&
+              <OrbitProgress color="#32cd32" size="small" />
+            }
+            {
+              success &&
+              <h1 className='text-green-700'><span className='font-bold'>Success!</span> Your code has passed our test case</h1>
+            }
+            <h1></h1>
+
+            <div className="flex gap-4 justify-end">
+              <button
+                onClick={handleRunCode}
+                className=" bg-green-700 p-2 rounded-md"
               >
-              {consoleVisible ? "Hide Console" : "Show Console"}
-            </button>
+                Run Code
+              </button>
+
+              <button
+                onClick={() => setConsoleVisible(!consoleVisible)}
+                className=" text-gray-300 bg-gray-700 p-2 rounded-md"
+              >
+                {consoleVisible ? "Hide Console" : "Show Console"}
+              </button>
+            </div>
           </div>
 
-             {/* Console Output */}
-             {consoleVisible && (
-              <div className="bg-gray-900 p-4 mt-5 rounded-md">
+          {/* Console Output */}
+          {consoleVisible && (
+            <div className="bg-gray-900 p-4 mt-5 rounded-md">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-bold">Test Case:</h3>
-                  <div
-  className="mt-4 w-full h-24 bg-gray-800 p-2 rounded-lg focus:outline-none overflow-y-auto text-white"
-  style={{ whiteSpace: 'pre-wrap' }}
->
-  {question.example.input}
-</div>
+                  <textarea
+                    className="mt-4 w-full h-24 bg-gray-800 p-2 rounded-lg focus:outline-none"
+                    value={question.example.input}
+                    readOnly
+                  />
                 </div>
-                <div>
-  <h3 className="font-bold">Output:</h3>
-  <pre
-    ref={consoleRef}
-    style={{
-      height: '93px',
-      overflowY: 'auto',
-    }}
-    className="mt-4 p-2 pb-6 text-white"
-  >
-    {output}
-  </pre>
-</div>
+                <div >
+                  <h3 className="font-bold">Output:</h3>
+                  <pre ref={consoleRef} className="mt-4 min-h-24 p-2 pb-6 text-white">{output}</pre>
+                </div>
               </div>
             </div>
           )}
