@@ -7,13 +7,12 @@ import Split from '@uiw/react-split';
 export default function Workspace({ question }) {
   const consoleRef = useRef(null);
   const [code, setCode] = useState(`# Write your Python code for ${question.title}`);
-  const [consoleVisible, setConsoleVisible] = useState(false); // Toggle for console visibility
-  const [output, setOutput] = useState(""); // Store the output of the code
-  const [cheerpXInstance, setCheerpXInstance] = useState(null); // State to hold the CheerpX instance
+  const [consoleVisible, setConsoleVisible] = useState(false); 
+  const [output, setOutput] = useState(""); 
+  const [cheerpXInstance, setCheerpXInstance] = useState(null); 
 
   useEffect(() => {
     const loadCheerpX = async () => {
-      // Dynamically load the CheerpX script
       const script = document.createElement('script');
       script.src = "https://cxrtnc.leaningtech.com/1.0.0/cx.js";
       script.async = true;
@@ -41,11 +40,9 @@ export default function Workspace({ question }) {
       
           console.log("CheerpX instance created:", cheerpx);
 
-          // Set console output to your output area
-          if (consoleRef.current) {
-            console.log("Console Ref:", consoleRef.current);
-            cheerpx.setConsole(consoleRef.current);
-          }
+          // console.log("Console Ref:", consoleRef.current);
+          // cheerpx.setConsole(consoleRef.current);
+
           setCheerpXInstance(cheerpx);
 
         } catch (error) {
@@ -62,47 +59,81 @@ export default function Workspace({ question }) {
   }, []); 
   
 
-  
+  useEffect(() => {
+    if (cheerpXInstance && consoleRef.current) {
+      cheerpXInstance.setConsole(consoleRef.current);
+      console.log("Console set successfully.");
+    }
+  }, [cheerpXInstance, consoleVisible]); // Added consoleVisible as dependency
+
   const handleRunCode = async () => {
     if (cheerpXInstance) {
       try {
-        // Directly update the state inside stdout.write
         const stdout = {
           write: (data) => {
-            console.log("Received stdout data:", data); // Check if data is captured
+            console.log("Received stdout data:", data); 
             if (data) {
               setOutput((prevOutput) => prevOutput + data);
-            } else {
-              console.log("No data received.");
             }
           },
         };
-  
+
         const result = await cheerpXInstance.run("/usr/bin/python3", ["-c", code], {
           env: ["PATH=/usr/bin:/bin"],
-          cwd: "/app", 
-          stdout, 
+          cwd: "/app",
+          stdout,
         });
-        
 
-  
+        console.log("CheerpX run result:", result); // Log the result status
+
       } catch (error) {
         console.error("Failed to run code:", error);
-        setOutput("Error: " + error.message); // Show error in the UI
+        setOutput("Error: " + error.message); 
       }
     } else {
       console.error("CheerpX instance is not initialized.");
       setOutput("Error: CheerpX instance not initialized.");
     }
   };
+  // const handleRunCode = async () => {
+  //   if (cheerpXInstance) {
+  //     try {
+  //       const stdout = {
+  //         write: (data) => {
+  //           console.log("Received stdout data:", data); 
+  //           if (data) {
+  //             setOutput((prevOutput) => prevOutput + data);
+  //           } else {
+  //             console.log("No data received.");
+  //           }
+  //         },
+  //       };
+  
+  //       const result = await cheerpXInstance.run("/usr/bin/python3", ["-c", code], {
+  //         env: ["PATH=/usr/bin:/bin"],
+  //         cwd: "/app", 
+  //         stdout, 
+  //       });
+        
+  //       setOutput("hello")
+  
+  //     } catch (error) {
+  //       console.error("Failed to run code:", error);
+  //       setOutput("Error: " + error.message); // Show error in the UI
+  //     }
+  //   } else {
+  //     console.error("CheerpX instance is not initialized.");
+  //     setOutput("Error: CheerpX instance not initialized.");
+  //   }
+  // };
   
   
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="w-full -mt-8 p-8">
       <Split
-        className="w-full h-screen m-4 rounded-lg shadow-lg overflow-hidden"
-        style={{ height: 900, border: '1px solid #1a1a1a', borderRadius: 3 }}
+        className="w-full m-4 rounded-lg shadow-lg"
+        style={{ height: 900, border: '1px solid #1a1a1a' }}
       >
         {/* Left Panel: Instructions */}
         <div className="flex flex-col bg-gray-800 text-gray-300 p-6 rounded-lg shadow-md min-w-[60px] w-[400px]">
@@ -138,8 +169,24 @@ export default function Workspace({ question }) {
             onChange={(value) => setCode(value)}
             className="p-2 text-sm mt-4 border border-gray-800 rounded-lg focus:border-blue-500 transition-all duration-200"
           />
-          {/* Console Output */}
-          {consoleVisible && (
+      
+          <button
+            onClick={handleRunCode}
+            className="mt-4 bg-green-500 p-2 rounded-md"
+          >
+            Run Code
+          </button>
+
+          {/* Toggle Console */}
+          <button
+            onClick={() => setConsoleVisible(!consoleVisible)}
+            className="mt-6 text-gray-300 bg-gray-700 p-2 rounded-md"
+          >
+            {consoleVisible ? "Hide Console" : "Show Console"}
+          </button>
+
+             {/* Console Output */}
+             {consoleVisible && (
             <div className="bg-gray-900 p-4 mt-5 rounded-md">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -157,20 +204,6 @@ export default function Workspace({ question }) {
               </div>
             </div>
           )}
-          <button
-            onClick={handleRunCode}
-            className="mt-4 bg-green-500 p-2 rounded-md"
-          >
-            Run Code
-          </button>
-
-          {/* Toggle Console */}
-          <button
-            onClick={() => setConsoleVisible(!consoleVisible)}
-            className="mt-6 text-gray-300 bg-gray-700 p-2 rounded-md"
-          >
-            {consoleVisible ? "Hide Console" : "Show Console"}
-          </button>
         </div>
       </Split>
     </div>
