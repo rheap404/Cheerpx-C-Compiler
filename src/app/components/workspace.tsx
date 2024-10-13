@@ -86,10 +86,10 @@ export default function Workspace({ question }) {
   
 
   return (
-    <div className="w-full -mt-8 p-8">
+    <div className="max-h-screen">
       <Split
-        className="w-full m-4 rounded-lg shadow-lg"
-        style={{ height: 900, border: '1px solid #1a1a1a' }}
+        className="w-full pt-6 rounded-lg shadow-lg"
+        style={{ height: 650, border: '1px solid #1a1a1a' }}
       >
         {/* Left Panel: Instructions */}
         <div className="flex flex-col bg-gray-800 text-gray-300 p-6 rounded-lg shadow-md min-w-[60px] w-[400px]">
@@ -119,7 +119,7 @@ export default function Workspace({ question }) {
           </h2>
           <CodeMirror
             value={code}
-            height="400px"
+            height="260px"
             extensions={[python()]}
             theme="dark"
             onChange={(value) => setCode(value)}
@@ -147,16 +147,26 @@ export default function Workspace({ question }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-bold">Test Case:</h3>
-                  <textarea
-                    className= "mt-4 w-full h-24 bg-gray-800 p-2 rounded-lg focus:outline-none"
-                    value={question.example.input}
-                    readOnly
-                  />
+                  <div
+  className="mt-4 w-full h-24 bg-gray-800 p-2 rounded-lg focus:outline-none overflow-y-auto text-white"
+  style={{ whiteSpace: 'pre-wrap' }}
+>
+  {question.example.input}
+</div>
                 </div>
-                <div >
-                  <h3 className="font-bold">Output:</h3>
-                  <pre ref={consoleRef} className="mt-4 p-2 pb-6 text-white">{output}</pre>
-                </div>
+                <div>
+  <h3 className="font-bold">Output:</h3>
+  <pre
+    ref={consoleRef}
+    style={{
+      height: '93px',
+      overflowY: 'auto',
+    }}
+    className="mt-4 p-2 pb-6 text-white"
+  >
+    {output}
+  </pre>
+</div>
               </div>
             </div>
           )}
