@@ -1,10 +1,18 @@
 
-## WebVM Hackathon Project
+# We Won!!
+
+We are thrilled to announce that our project, WebVM Hackathon Project, won at the WebVM Hackathon! 🎉
+
+This achievement recognizes the innovative use of CheerpX for creating a browser-based platform that allows users to practice coding problems without the need for server-side execution. Our solution stood out for its client-side Python execution, real-time feedback, and cost-efficient approach to delivering an interactive coding experience.
+
+You can view the official hackathon results and more about our submission in the [Hackathon Results](https://github.com/leaningtech/WebVMHackathon/blob/main/results2024.md) section of our repository.
+
+# WebVM Hackathon Project
 
 This project was developed as part of the WebVM Hackathon, leveraging CheerpX for WebAssembly-powered client-side execution of Python code in the browser. It mimics platforms like NeetCode.io, enabling users to practice coding problems and receive immediate feedback by running their code directly in the browser. The goal of this project is to showcase the potential of WebVM for delivering powerful terminal-based applications without the need for native installations.
 
 
-# Overview
+## Overview
 
 This platform allows users to practice coding problems in Python, featuring a split-view workspace with problem instructions on one side and a code editor with a built-in console on the other. The platform runs code client-side using CheerpX, which emulates a virtual machine in the browser. This eliminates the need for server-based execution, improving speed, privacy, and scalability.
 
